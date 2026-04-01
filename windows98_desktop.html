@@ -1,0 +1,570 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+  body { font-family: 'MS Sans Serif', Arial, sans-serif; }
+  #desktop {
+    width: 100%; min-height: 600px; height: 600px;
+    background: #008080;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0,0,0,0.03) 1px, rgba(0,0,0,0.03) 2px),
+      repeating-linear-gradient(90deg, transparent, transparent 1px, rgba(0,0,0,0.03) 1px, rgba(0,0,0,0.03) 2px);
+    position: relative; overflow: hidden;
+  }
+  .win98-btn {
+    background: #c0c0c0;
+    border-top: 2px solid #ffffff; border-left: 2px solid #ffffff;
+    border-bottom: 2px solid #808080; border-right: 2px solid #808080;
+    font-family: 'MS Sans Serif', Arial, sans-serif; font-size: 11px;
+    padding: 2px 8px; cursor: pointer; outline: none;
+  }
+  .win98-btn:active {
+    border-top: 2px solid #808080; border-left: 2px solid #808080;
+    border-bottom: 2px solid #ffffff; border-right: 2px solid #ffffff;
+  }
+  #taskbar {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 32px;
+    background: #c0c0c0;
+    border-top: 2px solid #ffffff;
+    display: flex; align-items: center; gap: 4px; padding: 2px 4px;
+    z-index: 1000;
+  }
+  #start-btn {
+    display: flex; align-items: center; gap: 4px;
+    background: #c0c0c0; font-weight: bold; font-size: 12px;
+    border-top: 2px solid #ffffff; border-left: 2px solid #ffffff;
+    border-bottom: 2px solid #808080; border-right: 2px solid #808080;
+    padding: 2px 6px; cursor: pointer; height: 26px;
+  }
+  #start-btn:active { border-top: 2px solid #808080; border-left: 2px solid #808080; border-bottom: 2px solid #ffffff; border-right: 2px solid #ffffff; }
+  .win-logo { width: 16px; height: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; }
+  .win-logo span { display: block; }
+  .taskbar-clock {
+    margin-left: auto; background: #c0c0c0; font-size: 11px;
+    border-top: 1px solid #808080; border-left: 1px solid #808080;
+    border-bottom: 1px solid #ffffff; border-right: 1px solid #ffffff;
+    padding: 2px 8px; white-space: nowrap;
+  }
+  .taskbar-item {
+    background: #c0c0c0; font-size: 11px; height: 26px;
+    border-top: 2px solid #ffffff; border-left: 2px solid #ffffff;
+    border-bottom: 2px solid #808080; border-right: 2px solid #808080;
+    padding: 2px 8px; cursor: pointer; display: flex; align-items: center; gap: 4px; min-width: 120px;
+  }
+  .taskbar-item.active {
+    border-top: 2px solid #808080; border-left: 2px solid #808080;
+    border-bottom: 2px solid #ffffff; border-right: 2px solid #ffffff;
+    background: #b0b0b0;
+  }
+  .desktop-icon {
+    position: absolute; display: flex; flex-direction: column; align-items: center;
+    gap: 2px; cursor: pointer; width: 72px; padding: 4px;
+  }
+  .desktop-icon:hover .icon-label { background: #000080; color: white; }
+  .desktop-icon .icon-img { width: 32px; height: 32px; image-rendering: pixelated; }
+  .icon-label { font-size: 11px; color: white; text-align: center; text-shadow: 1px 1px 1px #000; padding: 1px 2px; word-break: break-word; line-height: 1.2; }
+  .window {
+    position: absolute; background: #c0c0c0; z-index: 100;
+    border-top: 2px solid #ffffff; border-left: 2px solid #ffffff;
+    border-bottom: 2px solid #808080; border-right: 2px solid #808080;
+    min-width: 200px; min-height: 100px;
+  }
+  .title-bar {
+    background: linear-gradient(to right, #000080, #1084d0);
+    color: white; font-size: 12px; font-weight: bold;
+    padding: 2px 4px; display: flex; align-items: center; gap: 4px;
+    cursor: move; height: 22px;
+  }
+  .title-bar-icon { width: 14px; height: 14px; }
+  .title-bar-btns { margin-left: auto; display: flex; gap: 2px; }
+  .title-bar-btn {
+    width: 16px; height: 14px; background: #c0c0c0; font-size: 10px; font-weight: bold;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    border-top: 1px solid #ffffff; border-left: 1px solid #ffffff;
+    border-bottom: 1px solid #808080; border-right: 1px solid #808080;
+    color: #000; line-height: 1;
+  }
+  .title-bar-btn:active { border-top: 1px solid #808080; border-left: 1px solid #808080; border-bottom: 1px solid #ffffff; border-right: 1px solid #ffffff; }
+  .window-menu-bar {
+    background: #c0c0c0; display: flex; font-size: 11px;
+    border-bottom: 1px solid #808080; padding: 1px 2px;
+  }
+  .menu-item { padding: 2px 6px; cursor: pointer; }
+  .menu-item:hover { background: #000080; color: white; }
+  .window-toolbar {
+    background: #c0c0c0; display: flex; gap: 4px; padding: 2px 4px;
+    border-bottom: 1px solid #808080; align-items: center; font-size: 11px;
+  }
+  .addr-bar {
+    flex: 1; border-top: 1px solid #808080; border-left: 1px solid #808080;
+    border-bottom: 1px solid #ffffff; border-right: 1px solid #ffffff;
+    background: white; padding: 1px 4px; font-size: 11px; font-family: Arial;
+  }
+  .window-content {
+    padding: 4px; overflow: auto;
+  }
+  .folder-area {
+    background: white; border-top: 1px solid #808080; border-left: 1px solid #808080;
+    border-bottom: 1px solid #ffffff; border-right: 1px solid #ffffff;
+    min-height: 280px; padding: 8px; display: flex; flex-wrap: wrap;
+    align-content: flex-start; gap: 4px; position: relative;
+  }
+  .folder-area.drag-over { background: #e0e8ff; outline: 2px dashed #000080; }
+  .file-item {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    width: 72px; padding: 4px; cursor: pointer; border: 1px solid transparent;
+  }
+  .file-item:hover { background: #cce0ff; border: 1px dotted #000080; }
+  .file-item.selected { background: #000080; }
+  .file-item.selected .file-label { color: white; }
+  .file-item .file-icon { width: 32px; height: 32px; }
+  .file-label { font-size: 11px; text-align: center; word-break: break-word; line-height: 1.2; }
+  .status-bar {
+    background: #c0c0c0; border-top: 1px solid #808080; font-size: 11px;
+    display: flex; gap: 4px; padding: 1px 4px;
+  }
+  .status-panel {
+    border-top: 1px solid #808080; border-left: 1px solid #808080;
+    border-bottom: 1px solid #ffffff; border-right: 1px solid #ffffff;
+    padding: 0 8px;
+  }
+  .drop-hint {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    color: #808080; font-size: 12px; text-align: center; pointer-events: none;
+  }
+  .resize-handle {
+    position: absolute; right: 0; bottom: 0; width: 12px; height: 12px; cursor: se-resize;
+  }
+  .start-menu {
+    position: absolute; bottom: 32px; left: 0; width: 200px;
+    background: #c0c0c0;
+    border-top: 2px solid #ffffff; border-left: 2px solid #ffffff;
+    border-bottom: 2px solid #808080; border-right: 2px solid #808080;
+    z-index: 2000; display: none;
+  }
+  .start-menu-header {
+    background: linear-gradient(to top, #000080, #1084d0);
+    color: white; writing-mode: vertical-lr; transform: rotate(180deg);
+    font-size: 14px; font-weight: bold; padding: 8px 4px;
+    position: absolute; left: 0; top: 0; bottom: 0; width: 24px;
+  }
+  .start-menu-items { margin-left: 24px; padding: 2px 0; }
+  .start-menu-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 8px; font-size: 12px; cursor: pointer;
+  }
+  .start-menu-item:hover { background: #000080; color: white; }
+  .start-divider { height: 1px; background: #808080; margin: 2px 4px; }
+  .notif { position: absolute; bottom: 36px; right: 4px; background: #ffffcc; border: 1px solid #000; padding: 4px 8px; font-size: 11px; z-index: 3000; box-shadow: 2px 2px 0 #808080; display: none; }
+</style>
+
+<div id="desktop" ondragover="handleDeskDragOver(event)" ondrop="handleDeskDrop(event)">
+
+  <div class="desktop-icon" style="top:20px;left:20px" ondblclick="openMyProjects()">
+    <svg class="icon-img" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="9" width="30" height="20" fill="#FFCC00" stroke="#C08000" stroke-width="1"/>
+      <rect x="1" y="6" width="12" height="5" fill="#FFCC00" stroke="#C08000" stroke-width="1"/>
+      <rect x="2" y="10" width="28" height="18" fill="#FFE066"/>
+    </svg>
+    <span class="icon-label">Mes Projets</span>
+  </div>
+
+  <div class="desktop-icon" style="top:110px;left:20px" ondblclick="openRecycleBin()">
+    <svg class="icon-img" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="10" width="20" height="18" fill="#c0c0c0" stroke="#808080" stroke-width="1"/>
+      <rect x="4" y="8" width="24" height="4" fill="#a0a0a0" stroke="#808080" stroke-width="1"/>
+      <rect x="12" y="5" width="8" height="5" fill="#a0a0a0" stroke="#808080" stroke-width="1"/>
+      <line x1="10" y1="14" x2="10" y2="25" stroke="#808080" stroke-width="1.5"/>
+      <line x1="16" y1="14" x2="16" y2="25" stroke="#808080" stroke-width="1.5"/>
+      <line x1="22" y1="14" x2="22" y2="25" stroke="#808080" stroke-width="1.5"/>
+    </svg>
+    <span class="icon-label">Corbeille</span>
+  </div>
+
+  <div class="desktop-icon" style="top:200px;left:20px" ondblclick="openNotepad()">
+    <svg class="icon-img" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="2" width="24" height="28" fill="white" stroke="#808080" stroke-width="1"/>
+      <rect x="4" y="2" width="24" height="4" fill="#000080"/>
+      <line x1="8" y1="12" x2="24" y2="12" stroke="#c0c0c0" stroke-width="1"/>
+      <line x1="8" y1="16" x2="24" y2="16" stroke="#c0c0c0" stroke-width="1"/>
+      <line x1="8" y1="20" x2="20" y2="20" stroke="#c0c0c0" stroke-width="1"/>
+      <line x1="8" y1="24" x2="22" y2="24" stroke="#c0c0c0" stroke-width="1"/>
+    </svg>
+    <span class="icon-label">Bloc-notes</span>
+  </div>
+
+  <div class="desktop-icon" style="top:290px;left:20px" id="drag-hint-icon">
+    <svg class="icon-img" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="13" fill="#FF8800" stroke="#CC5500" stroke-width="1.5"/>
+      <text x="16" y="21" text-anchor="middle" font-size="16" fill="white" font-family="Arial" font-weight="bold">?</text>
+    </svg>
+    <span class="icon-label">Aide</span>
+  </div>
+
+  <div id="window-projects" class="window" style="top:40px;left:120px;width:520px;display:none;">
+    <div class="title-bar" id="tb-projects" onmousedown="startDrag(event,'window-projects')">
+      <svg class="title-bar-icon" viewBox="0 0 16 16"><rect x="0" y="4" width="16" height="11" fill="#FFCC00" stroke="#C08000" stroke-width="1"/><rect x="0" y="2" width="6" height="4" fill="#FFCC00" stroke="#C08000" stroke-width="1"/></svg>
+      <span>Mes Projets</span>
+      <div class="title-bar-btns">
+        <div class="title-bar-btn" onclick="minimizeWin('window-projects')">_</div>
+        <div class="title-bar-btn" onclick="maximizeWin('window-projects')">□</div>
+        <div class="title-bar-btn" onclick="closeWin('window-projects')" style="font-weight:900">✕</div>
+      </div>
+    </div>
+    <div class="window-menu-bar">
+      <span class="menu-item">Fichier</span><span class="menu-item">Edition</span><span class="menu-item">Affichage</span><span class="menu-item">?</span>
+    </div>
+    <div class="window-toolbar">
+      <button class="win98-btn" onclick="triggerAddProject()">➕ Ajouter projet</button>
+      <button class="win98-btn" onclick="deleteSelected()">🗑 Supprimer</button>
+      <span style="margin:0 4px;border-left:1px solid #808080;border-right:1px solid #fff;height:18px;display:inline-block;"></span>
+      <span style="font-size:11px;">Adresse :</span>
+      <span class="addr-bar">C:\Mes Projets</span>
+    </div>
+    <div class="window-content">
+      <div class="folder-area" id="folder-area"
+        ondragover="folderDragOver(event)"
+        ondragleave="folderDragLeave(event)"
+        ondrop="folderDrop(event)"
+        onclick="deselectAll()">
+        <div class="drop-hint" id="drop-hint">
+          Glissez vos projets ici<br>ou cliquez "Ajouter projet"
+        </div>
+      </div>
+    </div>
+    <div class="status-bar">
+      <span class="status-panel" id="status-count">0 objet(s)</span>
+      <span class="status-panel" id="status-sel">Aucun objet sélectionné</span>
+    </div>
+    <div class="resize-handle" onmousedown="startResize(event,'window-projects')"></div>
+  </div>
+
+  <div id="window-notepad" class="window" style="top:80px;left:200px;width:380px;display:none;">
+    <div class="title-bar" onmousedown="startDrag(event,'window-notepad')">
+      <svg class="title-bar-icon" viewBox="0 0 16 16"><rect x="2" y="1" width="12" height="14" fill="white" stroke="#808080"/><rect x="2" y="1" width="12" height="3" fill="#000080"/></svg>
+      <span>Bloc-notes - Sans titre</span>
+      <div class="title-bar-btns">
+        <div class="title-bar-btn" onclick="minimizeWin('window-notepad')">_</div>
+        <div class="title-bar-btn">□</div>
+        <div class="title-bar-btn" onclick="closeWin('window-notepad')" style="font-weight:900">✕</div>
+      </div>
+    </div>
+    <div class="window-menu-bar"><span class="menu-item">Fichier</span><span class="menu-item">Edition</span><span class="menu-item">Format</span></div>
+    <div class="window-content" style="padding:0;">
+      <textarea style="width:100%;height:220px;border:none;padding:4px;font-family:'Courier New',monospace;font-size:12px;resize:none;outline:none;" placeholder="Tapez ici..."></textarea>
+    </div>
+  </div>
+
+  <div id="window-recycle" class="window" style="top:60px;left:160px;width:360px;display:none;">
+    <div class="title-bar" onmousedown="startDrag(event,'window-recycle')">
+      <svg class="title-bar-icon" viewBox="0 0 16 16"><rect x="3" y="5" width="10" height="9" fill="#c0c0c0" stroke="#808080"/><rect x="2" y="4" width="12" height="2" fill="#a0a0a0" stroke="#808080"/></svg>
+      <span>Corbeille</span>
+      <div class="title-bar-btns">
+        <div class="title-bar-btn" onclick="minimizeWin('window-recycle')">_</div>
+        <div class="title-bar-btn">□</div>
+        <div class="title-bar-btn" onclick="closeWin('window-recycle')" style="font-weight:900">✕</div>
+      </div>
+    </div>
+    <div class="window-content">
+      <div style="background:white;border-top:1px solid #808080;border-left:1px solid #808080;border-bottom:1px solid #fff;border-right:1px solid #fff;min-height:160px;padding:16px;text-align:center;color:#808080;font-size:12px;">
+        <div style="font-size:32px;margin-bottom:8px;">🗑</div>
+        La corbeille est vide.
+      </div>
+    </div>
+  </div>
+
+  <div id="window-rename" class="window" style="top:200px;left:220px;width:300px;display:none;z-index:500;">
+    <div class="title-bar" onmousedown="startDrag(event,'window-rename')">
+      <span>Renommer</span>
+      <div class="title-bar-btns">
+        <div class="title-bar-btn" onclick="closeWin('window-rename')" style="font-weight:900">✕</div>
+      </div>
+    </div>
+    <div class="window-content" style="padding:12px;display:flex;flex-direction:column;gap:8px;">
+      <span style="font-size:11px;">Nouveau nom :</span>
+      <input id="rename-input" type="text" style="border-top:1px solid #808080;border-left:1px solid #808080;border-bottom:1px solid #fff;border-right:1px solid #fff;padding:2px 4px;font-size:12px;width:100%;" onkeydown="if(event.key==='Enter')confirmRename()"/>
+      <div style="display:flex;gap:6px;justify-content:flex-end;">
+        <button class="win98-btn" onclick="confirmRename()">OK</button>
+        <button class="win98-btn" onclick="closeWin('window-rename')">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="ctx-menu" style="display:none;position:absolute;z-index:3000;background:#c0c0c0;border-top:1px solid #fff;border-left:1px solid #fff;border-bottom:1px solid #808080;border-right:1px solid #808080;min-width:160px;">
+    <div class="menu-item" style="font-size:11px;padding:3px 20px;" onclick="ctxOpen()">Ouvrir</div>
+    <div class="menu-item" style="font-size:11px;padding:3px 20px;" onclick="ctxRename()">Renommer</div>
+    <div class="menu-item" style="font-size:11px;padding:3px 20px;" onclick="ctxDelete()">Supprimer</div>
+    <div style="height:1px;background:#808080;margin:2px 0;"></div>
+    <div class="menu-item" style="font-size:11px;padding:3px 20px;" onclick="closeCtx()">Annuler</div>
+  </div>
+
+  <div id="start-menu" class="start-menu">
+    <div class="start-menu-header">Windows 98</div>
+    <div class="start-menu-items">
+      <div class="start-menu-item" onclick="openMyProjects();closeStartMenu()">
+        <svg width="20" height="20" viewBox="0 0 32 32"><rect x="1" y="9" width="30" height="20" fill="#FFCC00" stroke="#C08000" stroke-width="1"/><rect x="1" y="6" width="12" height="5" fill="#FFCC00" stroke="#C08000" stroke-width="1"/><rect x="2" y="10" width="28" height="18" fill="#FFE066"/></svg>
+        Mes Projets
+      </div>
+      <div class="start-menu-item" onclick="openNotepad();closeStartMenu()">
+        <svg width="20" height="20" viewBox="0 0 32 32"><rect x="4" y="2" width="24" height="28" fill="white" stroke="#808080"/><rect x="4" y="2" width="24" height="4" fill="#000080"/></svg>
+        Bloc-notes
+      </div>
+      <div class="start-divider"></div>
+      <div class="start-menu-item" onclick="closeStartMenu()">
+        <svg width="20" height="20" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#808080" stroke="#404040"/><text x="16" y="21" text-anchor="middle" font-size="14" fill="white" font-family="Arial">✕</text></svg>
+        Arrêter
+      </div>
+    </div>
+  </div>
+
+  <div id="taskbar">
+    <div id="start-btn" onclick="toggleStartMenu()">
+      <div class="win-logo">
+        <span style="background:#FF0000;"></span><span style="background:#00AA00;"></span>
+        <span style="background:#0000FF;"></span><span style="background:#FFCC00;"></span>
+      </div>
+      <strong>Démarrer</strong>
+    </div>
+    <div id="taskbar-items" style="display:flex;gap:2px;"></div>
+    <div class="taskbar-clock" id="clock">--:--</div>
+  </div>
+
+  <div class="notif" id="notif"></div>
+
+  <input type="file" id="file-input" multiple style="display:none" onchange="handleFileInput(event)"/>
+</div>
+
+<script>
+const projects = [];
+let selectedItem = null;
+let ctxTarget = null;
+let dragState = null;
+let renameTarget = null;
+
+const icons = {
+  folder: `<svg width="32" height="32" viewBox="0 0 32 32"><rect x="1" y="9" width="30" height="20" fill="#FFCC00" stroke="#C08000" stroke-width="1"/><rect x="1" y="6" width="12" height="5" fill="#FFCC00" stroke="#C08000" stroke-width="1"/><rect x="2" y="10" width="28" height="18" fill="#FFE066"/></svg>`,
+  doc: `<svg width="32" height="32" viewBox="0 0 32 32"><rect x="5" y="2" width="18" height="24" fill="white" stroke="#808080"/><polygon points="23,2 29,8 23,8" fill="#c0c0c0" stroke="#808080"/><rect x="23" y="2" width="6" height="6" fill="#e0e0e0"/><line x1="8" y1="11" x2="22" y2="11" stroke="#000080" stroke-width="1.2"/><line x1="8" y1="15" x2="22" y2="15" stroke="#808080" stroke-width="1"/><line x1="8" y1="19" x2="18" y2="19" stroke="#808080" stroke-width="1"/></svg>`,
+  image: `<svg width="32" height="32" viewBox="0 0 32 32"><rect x="2" y="4" width="28" height="24" fill="#e8f4ff" stroke="#808080"/><circle cx="10" cy="12" r="4" fill="#FFCC00"/><polygon points="2,28 14,16 20,22 25,16 30,28" fill="#008000"/></svg>`,
+  code: `<svg width="32" height="32" viewBox="0 0 32 32"><rect x="4" y="3" width="24" height="26" fill="#f0f8ff" stroke="#000080" stroke-width="1.5"/><text x="7" y="14" font-size="8" fill="#000080" font-family="monospace">&lt;/&gt;</text><line x1="7" y1="18" x2="25" y2="18" stroke="#808080" stroke-width="1"/><line x1="7" y1="22" x2="20" y2="22" stroke="#808080" stroke-width="1"/></svg>`,
+  zip: `<svg width="32" height="32" viewBox="0 0 32 32"><rect x="4" y="2" width="24" height="28" fill="#ffe8a0" stroke="#C08000" stroke-width="1"/><rect x="12" y="2" width="8" height="28" fill="#FFCC00" stroke="#C08000" stroke-width="0.5"/><line x1="14" y1="2" x2="14" y2="30" stroke="#C08000" stroke-width="0.5"/><line x1="18" y1="2" x2="18" y2="30" stroke="#C08000" stroke-width="0.5"/></svg>`,
+  generic: `<svg width="32" height="32" viewBox="0 0 32 32"><rect x="5" y="2" width="18" height="24" fill="white" stroke="#808080"/><polygon points="23,2 29,8 23,8" fill="#c0c0c0" stroke="#808080"/></svg>`,
+};
+
+function getIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  if (['jpg','jpeg','png','gif','bmp','webp','svg'].includes(ext)) return icons.image;
+  if (['js','ts','html','css','py','java','cpp','c','php','json','xml'].includes(ext)) return icons.code;
+  if (['zip','rar','7z','tar','gz'].includes(ext)) return icons.zip;
+  if (['doc','docx','pdf','txt','md'].includes(ext)) return icons.doc;
+  if (ext === name.toLowerCase()) return icons.folder;
+  return icons.generic;
+}
+
+function renderProjects() {
+  const area = document.getElementById('folder-area');
+  const hint = document.getElementById('drop-hint');
+  area.querySelectorAll('.file-item').forEach(e => e.remove());
+  hint.style.display = projects.length === 0 ? 'block' : 'none';
+  projects.forEach((p, i) => {
+    const el = document.createElement('div');
+    el.className = 'file-item';
+    el.dataset.idx = i;
+    el.innerHTML = getIcon(p.name) + `<span class="file-label">${p.name}</span>`;
+    el.addEventListener('click', e => { e.stopPropagation(); selectItem(el, i); });
+    el.addEventListener('dblclick', e => { e.stopPropagation(); showNotif(`"${p.name}" ouvert !`); });
+    el.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); selectItem(el, i); showCtx(e, i); });
+    el.draggable = true;
+    el.addEventListener('dragstart', e => { e.dataTransfer.setData('project-idx', i); });
+    area.appendChild(el);
+  });
+  document.getElementById('status-count').textContent = projects.length + ' objet(s)';
+}
+
+function selectItem(el, idx) {
+  document.querySelectorAll('.file-item').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedItem = idx;
+  document.getElementById('status-sel').textContent = `"${projects[idx].name}" sélectionné`;
+}
+
+function deselectAll() {
+  document.querySelectorAll('.file-item').forEach(e => e.classList.remove('selected'));
+  selectedItem = null;
+  document.getElementById('status-sel').textContent = 'Aucun objet sélectionné';
+}
+
+function triggerAddProject() {
+  document.getElementById('file-input').click();
+}
+
+function handleFileInput(e) {
+  Array.from(e.target.files).forEach(f => {
+    projects.push({ name: f.name, size: f.size });
+  });
+  e.target.value = '';
+  renderProjects();
+  showNotif(e.target.files.length + ' projet(s) ajouté(s) !');
+}
+
+function folderDragOver(e) {
+  e.preventDefault();
+  document.getElementById('folder-area').classList.add('drag-over');
+}
+function folderDragLeave(e) {
+  document.getElementById('folder-area').classList.remove('drag-over');
+}
+function folderDrop(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('folder-area').classList.remove('drag-over');
+  const idx = e.dataTransfer.getData('project-idx');
+  if (idx !== '') return;
+  if (e.dataTransfer.files.length > 0) {
+    Array.from(e.dataTransfer.files).forEach(f => {
+      projects.push({ name: f.name, size: f.size });
+    });
+    renderProjects();
+    showNotif(e.dataTransfer.files.length + ' fichier(s) ajouté(s) !');
+  } else {
+    const name = e.dataTransfer.getData('text/plain');
+    if (name) { projects.push({ name, size: 0 }); renderProjects(); }
+  }
+}
+function handleDeskDragOver(e) { e.preventDefault(); }
+function handleDeskDrop(e) {
+  e.preventDefault();
+  if (e.dataTransfer.files.length > 0) {
+    openMyProjects();
+    setTimeout(() => {
+      Array.from(e.dataTransfer.files).forEach(f => projects.push({ name: f.name, size: f.size }));
+      renderProjects();
+      showNotif(e.dataTransfer.files.length + ' fichier(s) ajouté(s) dans Mes Projets !');
+    }, 100);
+  }
+}
+
+function deleteSelected() {
+  if (selectedItem === null) return;
+  const name = projects[selectedItem].name;
+  projects.splice(selectedItem, 1);
+  selectedItem = null;
+  renderProjects();
+  showNotif(`"${name}" supprimé.`);
+}
+
+function showCtx(e, idx) {
+  ctxTarget = idx;
+  const menu = document.getElementById('ctx-menu');
+  menu.style.display = 'block';
+  menu.style.left = Math.min(e.clientX, window.innerWidth - 170) + 'px';
+  menu.style.top = Math.min(e.clientY, window.innerHeight - 120) + 'px';
+}
+function closeCtx() { document.getElementById('ctx-menu').style.display = 'none'; }
+function ctxOpen() { if (ctxTarget !== null) showNotif(`"${projects[ctxTarget].name}" ouvert !`); closeCtx(); }
+function ctxDelete() { if (ctxTarget !== null) { selectedItem = ctxTarget; deleteSelected(); } closeCtx(); }
+function ctxRename() {
+  if (ctxTarget === null) return;
+  renameTarget = ctxTarget;
+  document.getElementById('rename-input').value = projects[ctxTarget].name;
+  openWin('window-rename');
+  setTimeout(() => document.getElementById('rename-input').select(), 100);
+  closeCtx();
+}
+function confirmRename() {
+  if (renameTarget === null) return;
+  const val = document.getElementById('rename-input').value.trim();
+  if (val) { projects[renameTarget].name = val; renderProjects(); }
+  closeWin('window-rename');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#ctx-menu')) closeCtx();
+  if (!e.target.closest('#start-btn') && !e.target.closest('#start-menu')) closeStartMenu();
+});
+
+function openWin(id) {
+  const w = document.getElementById(id);
+  w.style.display = 'block';
+  w.style.zIndex = ++window._zTop || (window._zTop = 101);
+  updateTaskbar();
+}
+function closeWin(id) {
+  document.getElementById(id).style.display = 'none';
+  updateTaskbar();
+}
+function minimizeWin(id) { document.getElementById(id).style.display = 'none'; updateTaskbar(); }
+function maximizeWin(id) {}
+function openMyProjects() { openWin('window-projects'); }
+function openNotepad() { openWin('window-notepad'); }
+function openRecycleBin() { openWin('window-recycle'); }
+
+function updateTaskbar() {
+  const container = document.getElementById('taskbar-items');
+  container.innerHTML = '';
+  const wins = [
+    { id: 'window-projects', label: '📁 Mes Projets' },
+    { id: 'window-notepad', label: '📝 Bloc-notes' },
+    { id: 'window-recycle', label: '🗑 Corbeille' },
+  ];
+  wins.forEach(w => {
+    const el = document.getElementById(w.id);
+    if (el && el.style.display !== 'none') {
+      const btn = document.createElement('div');
+      btn.className = 'taskbar-item active';
+      btn.textContent = w.label;
+      btn.onclick = () => { el.style.display = 'none'; updateTaskbar(); };
+      container.appendChild(btn);
+    }
+  });
+}
+
+function startDrag(e, winId) {
+  const win = document.getElementById(winId);
+  win.style.zIndex = ++window._zTop || (window._zTop = 101);
+  const startX = e.clientX - win.offsetLeft;
+  const startY = e.clientY - win.offsetTop;
+  function onMove(ev) {
+    win.style.left = (ev.clientX - startX) + 'px';
+    win.style.top = Math.max(0, ev.clientY - startY) + 'px';
+  }
+  function onUp() {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+function startResize(e, winId) {
+  e.stopPropagation();
+  const win = document.getElementById(winId);
+  const startW = win.offsetWidth, startH = win.offsetHeight, startX = e.clientX, startY = e.clientY;
+  function onMove(ev) {
+    win.style.width = Math.max(300, startW + ev.clientX - startX) + 'px';
+    win.style.height = Math.max(200, startH + ev.clientY - startY) + 'px';
+    win.querySelector('.folder-area').style.minHeight = (win.offsetHeight - 130) + 'px';
+  }
+  function onUp() { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+function toggleStartMenu() {
+  const m = document.getElementById('start-menu');
+  m.style.display = m.style.display === 'block' ? 'none' : 'block';
+}
+function closeStartMenu() { document.getElementById('start-menu').style.display = 'none'; }
+
+function showNotif(msg) {
+  const n = document.getElementById('notif');
+  n.textContent = msg; n.style.display = 'block';
+  clearTimeout(n._t);
+  n._t = setTimeout(() => { n.style.display = 'none'; }, 2500);
+}
+
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+}
+updateClock(); setInterval(updateClock, 10000);
+
+openMyProjects();
+</script>
